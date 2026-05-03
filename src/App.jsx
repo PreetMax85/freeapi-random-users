@@ -18,7 +18,7 @@ function App() {
       if (!res.ok) throw new Error('Failed to fetch users');
       
       const json = await res.json();
-      const newUsers = json.data.data.map(u => u.data); // flatten per GEMINI.md
+      const newUsers = json.data.data; // The API returns user objects directly in the array
       
       setUsers(prev => pageNum === 1 ? newUsers : [...prev, ...newUsers]);
     } catch (err) {
@@ -33,8 +33,9 @@ function App() {
   }, [page]);
 
   const filteredUsers = users.filter(user => {
-    const fullName = `${user.name.first} ${user.name.last}`.toLowerCase();
-    const email = user.email.toLowerCase();
+    if (!user || !user.name) return false;
+    const fullName = `${user.name.first || ''} ${user.name.last || ''}`.toLowerCase();
+    const email = (user.email || '').toLowerCase();
     const query = searchQuery.toLowerCase();
     return fullName.includes(query) || email.includes(query);
   });
